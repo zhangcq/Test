@@ -42,6 +42,7 @@ public class CardHandler {
 			}
 			card.setPageNumber(pageNumber);
 			card.setPageSize(pageSize);
+			System.out.print(pageSize);
 			List<Card> cards = service.getAllCardByPage(card);
 			Gson gson = new Gson();
 			String userStr = gson.toJson(cards);
