@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mas.graduate.mapper.UserMapper">
+    <select id="getAllUserByPage" resultType="User" parameterType="User">
+  		select * from(select rownum r,t1.* from (select userid,uname,utel,company_name companyName,utype from guser
+  		where 1=1
+  		<if test="uname != null and uname != ''">
+  		    and uname like #{uname} 
+  		</if>
+  		<if test="utel != null and utel != ''">
+  		    and utel like #{utel} 
+  		</if>
+  		<if test="companyName != null and companyName != ''">
+  		    and companyName like #{companyName} 
+  		</if>
+  		) t1)t2      where t2.r  &lt;=(#{pageNumber}+#{pageSize}) and t2.r  &gt;#{pageNumber}
+    	
+    </select>
+    
+    <select id="getAllUser" resultType="int" parameterType="User">
+  		select count(1) from guser
+  		where 1=1
+  		<if test="uname != null and uname != ''">
+  		    and uname like #{uname} 
+  		</if>
+  		<if test="utel != null and utel != ''">
+  		    and utel like #{utel} 
+  		</if>
+  		<if test="companyName != null and companyName != ''">
+  		    and companyName like #{companyName} 
+  		</if>
+    </select>
+    
+    <select id="findUser" resultType="User" parameterType="User">
+  		select uname,utype,utel,company_name companyName from guser
+  		where uname= #{uname} 
+  		and upwd = #{upwd}
+    </select>
+    
+    <insert id="addUser" parameterType="User">
+        insert into guser values(seq_userid.nextval,#{uname},#{upwd},#{utel},#{companyName},#{utype})
+    </insert>
+    
+    <update id="editUser" parameterType="User">
+        update guser set uname=#{uname},utel=#{utel},company_name=#{companyName},utype=#{utype} where userid=#{userid}
+    </update>
+    
+    <delete id="deleteUser" parameterType="User">
+        delete from guser where userid = #{userid}
+    </delete>
+</mapper>
+
