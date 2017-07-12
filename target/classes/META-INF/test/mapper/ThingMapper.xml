@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mas.graduate.mapper.ThingMapper">
+    <select id="getAllThingByPage" resultType="Thing" parameterType="Thing">
+  		select * from(select rownum r,t1.* from (select thingid,place_of_departure departure,destination,thing_name thingName,thingtype,weight,to_char(release_time,'yyyy-MM-dd') releaseTime,releaser,phone,company_name companyName
+        from thingsource
+  		where status=1
+  		<if test="departure != null and departure != ''">
+  		    and place_of_departure like '%'||#{departure}||'%' 
+  		</if>
+  		<if test="destination != null and destination != ''">
+  		    and destination like '%'||#{destination}||'%' 
+  		</if>
+  		<if test="releaseTimeBegin != null and releaseTimeBegin != ''">
+  		   and release_time &gt;= to_date(#{releaseTimeBegin},'yyyy-mm-dd')
+  		</if>
+  		<if test="releaseTimeEnd != null and releaseTimeEnd != ''">
+  		   and release_time &lt; to_date(#{releaseTimeEnd},'yyyy-mm-dd') + 1
+  		</if>
+  		) t1)t2      where t2.r  &lt;=(#{pageNumber}+#{pageSize}) and t2.r  &gt;#{pageNumber}
+    	
+    </select>
+    
+    <select id="getAllThing" resultType="int" parameterType="Thing">
+  		select count(1) from thingsource
+  		where 1=1
+  		<if test="departure != null and departure != ''">
+  		    and place_of_departure like '%'||#{departure}||'%' 
+  		</if>
+  		<if test="destination != null and destination != ''">
+  		    and destination like '%'||#{destination}||'%' 
+  		</if>
+  		<if test="releaseTimeBegin != null and releaseTimeBegin != ''">
+  		   and release_time &gt;= to_date(#{releaseTimeBegin},'yyyy-mm-dd')
+  		</if>
+  		<if test="releaseTimeEnd != null and releaseTimeEnd != ''">
+  		   and release_time &lt; to_date(#{releaseTimeEnd},'yyyy-mm-dd') + 1
+  		</if>
+    </select>
+    
+    <select id="getAllMyThingByPage" resultType="Thing">
+    	select * from(select rownum r,t1.* from (select thingid,place_of_departure departure,destination,thing_name thingName,thingtype,weight,to_char(release_time,'yyyy-MM-dd') releaseTime,releaser,phone,company_name companyName
+        from thingsource
+  		where status=1 and releaser = #{user.uname}
+  		<if test="thing.departure != null and thing.departure != ''">
+  		    and place_of_departure like '%'||#{thing.departure}||'%' 
+  		</if>
+  		<if test="thing.destination != null and thing.destination != ''">
+  		    and destination like '%'||#{thing.destination}||'%' 
+  		</if>
+  		<if test="thing.releaseTimeBegin != null and thing.releaseTimeBegin != ''">
+  		   and release_time &gt;= to_date(#{thing.releaseTimeBegin},'yyyy-mm-dd')
+  		</if>
+  		<if test="thing.releaseTimeEnd != null and thing.releaseTimeEnd != ''">
+  		   and release_time &lt; to_date(#{thing.releaseTimeEnd},'yyyy-mm-dd') + 1
+  		</if>
+  		) t1)t2      where t2.r  &lt;=(#{thing.pageNumber}+#{thing.pageSize}) and t2.r  &gt;#{thing.pageNumber}
+    	
+    </select>
+    
+    <select id="getAllMyThing" resultType="int">
+  		select count(1) from thingsource
+  		where 1=1 and releaser = #{user.uname}
+  		<if test="thing.departure != null and thing.departure != ''">
+  		    and place_of_departure like '%'||#{thing.departure}||'%' 
+  		</if>
+  		<if test="thing.destination != null and thing.destination != ''">
+  		    and destination like '%'||#{thing.destination}||'%' 
+  		</if>
+  		<if test="thing.releaseTimeBegin != null and thing.releaseTimeBegin != ''">
+  		   and release_time &gt;= to_date(#{thing.releaseTimeBegin},'yyyy-mm-dd')
+  		</if>
+  		<if test="thing.releaseTimeEnd != null and thing.releaseTimeEnd != ''">
+  		   and release_time &lt; to_date(#{thing.releaseTimeEnd},'yyyy-mm-dd') + 1
+  		</if>
+    </select>
+    
+    <insert id="addThing">
+        insert into thingsource values(seq_thingid.nextval,#{thing.departure},#{thing.destination},#{thing.thingName},#{thing.thingtype},#{thing.weight},to_date(#{thing.releaseTime},'yyyy-mm-dd'),#{user.uname},#{user.utel},#{user.companyName},1)
+    </insert>
+    
+    <update id="editThing" parameterType="Thing">
+        update thingsource set place_of_departure=#{departure},destination=#{destination},thing_name=#{thingName},thingtype=#{thingtype},weight=#{weight},release_time=to_date(#{releaseTime},'yyyy-mm-dd') where thingid=#{thingid}
+    </update>
+    
+    <delete id="deleteThing" parameterType="Thing">
+        delete from thingsource where thingid=#{thingid}
+    </delete>
+</mapper>
+

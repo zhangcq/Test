@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mas.graduate.mapper.CarMapper">
+    <select id="getAllCarByPage" resultType="Car" parameterType="Car">
+  		select * from(select rownum r,t1.* from (select carid,place_of_departure departure,destination,cartype,weight,carvalue,to_char(release_time,'yyyy-MM-dd HH24:mm:ss') releaseTime,releaser,phone,company_name companyName
+        from carsource
+  		where status=1
+  		<if test="departure != null and departure != ''">
+  		    and place_of_departure like '%'||#{departure}||'%' 
+  		</if>
+  		<if test="destination != null and destination != ''">
+  		    and destination like '%'||#{destination}||'%' 
+  		</if>
+  		<if test="cartype != null and cartype != ''">
+  		    and cartype like '%'||#{cartype}||'%' 
+  		</if>
+  		) t1)t2      where t2.r  &lt;=(#{pageNumber}+#{pageSize}) and t2.r  &gt;#{pageNumber}
+    	
+    </select>
+    
+    <select id="getAllCar" resultType="int" parameterType="Car">
+  		select count(1) from carsource
+  		where 1=1
+  		<if test="departure != null and departure != ''">
+  		    and place_of_departure like '%'||#{departure}||'%'
+  		</if>
+  		<if test="destination != null and destination != ''">
+  		    and destination like '%'||#{destination}||'%' 
+  		</if>
+  		<if test="cartype != null and cartype != ''">
+  		    and cartype like '%'||#{cartype}||'%' 
+  		</if>
+    </select>
+    
+    <select id="getAllLogCarByPage" resultType="LogCar" parameterType="LogCar">
+  		select * from(select rownum r,t1.* from (select carid carId,carnum carNum,cartype carType,to_char(create_time,'yyyy-MM-dd HH24:mm:ss') createTime,creater,company_name companyName
+        from car
+  		where status=1
+  		<if test="carNum != null and carNum != ''">
+  		    and carnum like '%'||#{carNum}||'%' 
+  		</if>
+  		<if test="carType != null and carType != ''">
+  		    and cartype like '%'||#{carType}||'%' 
+  		</if>
+  		<if test="companyName != null and companyName != ''">
+  		    and company_name like '%'||#{companyName}||'%' 
+  		</if>
+  		) t1)t2      where t2.r  &lt;=(#{pageNumber}+#{pageSize}) and t2.r  &gt;#{pageNumber}
+    	
+    </select>
+    
+    <select id="getAllLogCar" resultType="int" parameterType="LogCar">
+  		select count(1) from car
+  		where 1=1
+  		<if test="carNum != null and carNum != ''">
+  		    and carnum like '%'||#{carNum}||'%' 
+  		</if>
+  		<if test="carType != null and carType != ''">
+  		    and cartype like '%'||#{carType}||'%' 
+  		</if>
+  		<if test="companyName != null and companyName != ''">
+  		    and company_name like '%'||#{companyName}||'%' 
+  		</if>
+    </select>
+    
+    
+    <select id="getAllMyCarByPage" resultType="Car">
+  		select * from(select rownum r,t1.* from (select carid,place_of_departure departure,destination,cartype,weight,carvalue,to_char(release_time,'yyyy-MM-dd HH24:mm:ss') releaseTime,company_name companyName
+        from carsource
+  		where status=1 and releaser = #{user.uname}
+  		<if test="car.departure != null and car.departure != ''">
+  		    and place_of_departure like '%'||#{car.departure}||'%'
+  		</if>
+  		<if test="car.destination != null and car.destination != ''">
+  		    and destination like '%'||#{car.destination}||'%'
+  		</if>
+  		<if test="car.cartype != null and car.cartype != ''">
+  		    and cartype like '%'||#{car.cartype}||'%' 
+  		</if>
+  		) t1)t2      where t2.r  &lt;=(#{car.pageNumber}+#{car.pageSize}) and t2.r  &gt;#{car.pageNumber}
+    	
+    </select>
+    
+    <select id="getAllMyCar" resultType="int">
+  		select count(1) from carsource
+  		where 1=1 and releaser = #{user.uname}
+  		<if test="car.departure != null and car.departure != ''">
+  		    and place_of_departure like '%'||#{car.departure}||'%'
+  		</if>
+  		<if test="car.destination != null and car.destination != ''">
+  		    and destination like '%'||#{car.destination}||'%'
+  		</if>
+  		<if test="car.cartype != null and car.cartype != ''">
+  		    and cartype like '%'||#{car.cartype}||'%' 
+  		</if>
+    </select>
+    
+    <insert id="addCar">
+        insert into carsource values(seq_carid.nextval,#{car.departure},#{car.destination},#{car.cartype},#{car.weight},#{car.carvalue},sysdate,#{user.uname},#{user.utel},#{user.companyName},1)
+    </insert>
+    
+    <update id="editCar" parameterType="Car">
+        update carsource set place_of_departure=#{departure},destination=#{destination},cartype=#{cartype},weight=#{weight},carvalue=#{carvalue},release_time=sysdate where carid=#{carid}
+    </update>
+    
+    <delete id="deleteCar" parameterType="Car">
+        delete from carsource where carid=#{carid}
+    </delete>
+    
+    <insert id="addTradeRecord">
+        insert into traderecord values(seq_recordid.nextval,#{reportNum},#{carid},#{thingid},sysdate,#{owner.uname},#{user.uname},1)
+    </insert>
+    
+    <update id="updateCarStatus">
+        update carsource set status=0 where carid =#{carid}
+    </update>
+    
+    <update id="updateThingStatus">
+        update thingsource set status=0 where thingid =#{thingid}
+    </update>
+    
+    <select id="getUserByCarId" resultType="User">
+        select releaser uname from carsource where carid = #{carid}
+    </select>
+    
+    <insert id="addLogCar">
+        insert into car values(seq_tradecarid.nextval,#{car.carNum},#{car.carType},#{car.companyName},sysdate,#{user.uname},1)
+    </insert>
+    
+    <update id="editLogCar" parameterType="LogCar">
+        update car set carnum=#{carNum},cartype=#{carType},company_name=#{companyName} where carid=#{carId}
+    </update>
+    
+    <update id="deleteLogCar" parameterType="LogCar">
+        update car set status=0 where carid=#{carId}
+    </update>
+    
+    <insert id="tradeCar">
+        insert into dispatchrecord values(seq_dispatch_recordid.nextval,#{recordNum},#{orderId},#{carNum},sysdate,#{user.uname})
+    </insert>
+    
+    <update id="updateTradeRecord">
+        update traderecord set status=0 where recordid=#{orderId}
+    </update>
+    
+    <select id="getDispatch" resultType="Dispatch">
+       select a.*,d.recordnum dispatchRecordId,d.carnum carNum from(select r.recordid tradeRecordId, t.place_of_departure departure,t.destination destination,t.thing_name thingName,t.thingtype thingType, to_char(t.release_time,'yyyy-MM-dd') sendTime,t.releaser thingOwner
+		,c.cartype carType,c.releaser carOwner,c.company_name companyName
+		from thingsource t,carsource c,traderecord r where t.thingid=r.thingid and c.carid =r.carid
+  		and r.status =0)a ,dispatchrecord d where d.traderecordid=#{orderId} and a.tradeRecordId=#{orderId}
+    </select>
+</mapper>
+

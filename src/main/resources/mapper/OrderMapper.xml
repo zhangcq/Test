@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mas.graduate.mapper.OrderMapper">
+    <select id="getAllOrderByPage" resultType="Order" parameterType="Order">
+  		select * from(select rownum r,t1.* from (select r.recordid orderId, t.place_of_departure departure,t.destination destination,t.thing_name thingName,t.thingtype thingType,t.weight thingWeight, to_char(t.release_time,'yyyy-MM-dd') releaseTime,t.releaser thingOwner,t.company_name thingOwnerCompany
+		,c.cartype carType,c.releaser carOwner,c.company_name carOwnerCompany,r.recordtime orderTime,r.recordnum orderNum
+		from thingsource t,carsource c,traderecord r where t.thingid=r.thingid and c.carid =r.carid
+  		and r.status =1
+  		<if test="departure != null and departure != ''">
+  		    and  t.place_of_departure like '%'||#{departure}||'%' 
+  		</if>
+  		<if test="destination != null and destination != ''">
+  		    and  t.destination like '%'||#{destination}||'%' 
+  		</if>
+  		<if test="orderId != null and orderId != ''">
+  		    and r.recordid like '%'||#{orderId}||'%' 
+  		</if>
+  		) t1)t2      where t2.r  &lt;=(#{pageNumber}+#{pageSize}) and t2.r  &gt;#{pageNumber}
+    	
+    </select>
+    
+    <select id="getAllOrder" resultType="int" parameterType="Order">
+  		select count(1) from (select r.recordid orderId, t.place_of_departure departure,t.destination destination,t.thing_name thingName,t.thingtype thingType,t.weight thingWeight, to_char(t.release_time,'yyyy-MM-dd') releaseTime,t.releaser thingOwner,t.company_name thingOwnerCompany
+		,c.cartype carType,c.releaser carOwner,c.company_name carOwnerCompany,r.recordtime orderTime,r.recordnum orderNum
+		from thingsource t,carsource c,traderecord r where t.thingid=r.thingid and c.carid =r.carid and r.status =1) a
+		where 1=1
+  		<if test="departure != null and departure != ''">
+  		    and  a.departure like '%'||#{departure}||'%' 
+  		</if>
+  		<if test="destination != null and destination != ''">
+  		    and  a.destination like '%'||#{destination}||'%' 
+  		</if>
+  		<if test="orderId != null and orderId != ''">
+  		    and a.orderId like '%'||#{orderId}||'%' 
+  		</if>
+    </select>
+    
+    <select id="getAllMyOrderByPage" resultType="Order">
+        select * from(select rownum r,t1.* from (select r.recordid orderId, t.place_of_departure departure,t.destination destination,t.thing_name thingName,t.thingtype thingType,t.weight thingWeight, to_char(t.release_time,'yyyy-MM-dd') releaseTime,t.releaser thingOwner,t.company_name thingOwnerCompany
+		,c.cartype carType,c.releaser carOwner,c.company_name carOwnerCompany,r.recordtime orderTime,r.recordnum orderNum
+		from thingsource t,carsource c,traderecord r where t.thingid=r.thingid and c.carid =r.carid and r.status =1
+  		and (c.releaser = #{user.uname} or t.releaser = #{user.uname})
+  		<if test="order.departure != null and order.departure != ''">
+  		    and  t.place_of_departure like '%'||#{order.departure}||'%' 
+  		</if>
+  		<if test="order.destination != null and order.destination != ''">
+  		    and  t.destination like '%'||#{order.destination}||'%' 
+  		</if>
+  		<if test="order.orderId != null and order.orderId != ''">
+  		    and r.recordid like '%'||#{order.orderId}||'%' 
+  		</if>
+  		) t1)t2      where t2.r  &lt;=(#{order.pageNumber}+#{order.pageSize}) and t2.r  &gt;#{order.pageNumber}
+    	
+    </select>
+    
+    <select id="getAllMyOrder" resultType="int">
+        select count(1) from (select r.recordid orderId, t.place_of_departure departure,t.destination destination,t.thing_name thingName,t.thingtype thingType,t.weight thingWeight, to_char(t.release_time,'yyyy-MM-dd') releaseTime,t.releaser thingOwner,t.company_name thingOwnerCompany
+		,c.cartype carType,c.releaser carOwner,c.company_name carOwnerCompany,r.recordtime orderTime,r.recordnum orderNum
+		from thingsource t,carsource c,traderecord r where t.thingid=r.thingid and c.carid =r.carid and r.status =1 and (c.releaser = #{user.uname} or t.releaser = #{user.uname})) a
+		where 1=1 
+  		<if test="order.departure != null and order.departure != ''">
+  		    and  a.departure like '%'||#{order.departure}||'%' 
+  		</if>
+  		<if test="order.destination != null and order.destination != ''">
+  		    and  a.destination like '%'||#{order.destination}||'%' 
+  		</if>
+  		<if test="order.orderId != null and order.orderId != ''">
+  		    and a.orderId like '%'||#{order.orderId}||'%' 
+  		</if>
+  		
+    </select>
+    
+    <update id="deleteOrder" parameterType="Order">
+        update traderecord set status=0 where recordid=#{orderId}
+    </update>
+    
+    <select id="getCarOrThing" resultType="CarOrThing">
+        select carid carId,thingid thingId from traderecord where recordid=#{orderId}
+    </select>
+    
+    <update id="updateCar">
+        update carsource set status=1 where carid =#{carId}
+    </update>
+    
+    <update id="updateThing">
+        update thingsource set status=1 where thingid =#{thingId}
+    </update>
+    
+    <select id="findCar" resultType="LogCar">
+        select * from car where cartype=#{carType} and company_name=#{companyName} and status=1
+    </select>
+</mapper>
+
