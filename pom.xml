@@ -116,17 +116,10 @@
 		</dependency>
 
 		<!-- oracle数据库驱动jar包 -->
-		<dependency>
-			<groupId>com.hynnet</groupId>
-			<artifactId>oracle-driver-ojdbc6</artifactId>
-			<version>${oracle.version}</version>
-			<scope>runtime</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
+		<dependency>  
+		    <groupId>com.oracle</groupId>  
+		    <artifactId>ojdbc14</artifactId>  
+		    <version>10.2.0.1.0</version>  
 		</dependency>
 
 		<!-- dbcp2数据源的jar包 -->
@@ -193,33 +186,7 @@
               <filtering>true</filtering>
           </resource>
       </resources>-->
-      <profiles>
-	    <profile>
-	        <id>local</id>
-	        <properties>
-	            <db.username>scott</db.username>
-	            <db.password>a</db.password>
-	        </properties>
-	        <activation>
-	            <activeByDefault>true</activeByDefault>
-	        </activation>
-	    </profile>
-	    <profile>
-	        <id>dev</id>
-	        <properties>
-	            <db.username>scott</db.username>
-	            <db.password>a</db.password>
-	        </properties>
-	    </profile>
-	</profiles> 
   <build>
-      <resources>
-          <resource>
-              <targetPath>META-INF/maven</targetPath>
-              <directory>src/main/resources</directory> <!-- 资源所在目录 -->
-              <filtering>true</filtering> <!-- 是否替换资源中的属性 -->
-          </resource>
-      </resources>
     <finalName>graduate</finalName>
   </build>
 </project>
